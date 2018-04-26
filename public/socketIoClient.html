@@ -1,0 +1,26 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>socketIo测试</title>
+</head>
+<body>
+<h1>socketIo测试</h1>
+<input type="button" value="sendBroadcastInfo" onclick="sendDCN()"/>
+</body>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io.connect('http://localhost:3000?userId=xxx');
+    socket.on("countMsg",function (data) {
+        console.log(data)
+    });
+
+    var socket1 = io.connect('http://localhost:3000');
+    function sendDCN() {
+        var data = {};
+        data.userName = "xxx";
+        data.eventName = "countMsg";
+        data.text = 99;
+        socket1.emit("broadcastInfo",data);
+    }
+</script>
+</html>
