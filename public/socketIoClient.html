@@ -14,13 +14,13 @@
         console.log(data)
     });
 
-    var socket1 = io.connect('http://localhost:3000');
+    var sendSocket = io.connect('http://localhost:3000');
     function sendDCN() {
         var data = {};
         data.userName = "xxx";
         data.eventName = "countMsg";
         data.text = 99;
-        socket1.emit("broadcastInfo",data);
+        sendSocket.emit("broadcastInfo",data);
     }
 </script>
 </html>

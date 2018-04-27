@@ -22,13 +22,16 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+var pingInterval = process.env.pingInterval || '10000';
+var pingTimeout = process.env.pingTimeout || '5000';
+
 var io = require('socket.io')();
 
 io.attach(server, {
     //间隔时间ping客户端
-    pingInterval: 10000,
+    pingInterval: pingInterval,
     //假如客户端ping超时则关闭链接
-    pingTimeout: 5000,
+    pingTimeout: pingTimeout,
     cookie: false
 });
 
