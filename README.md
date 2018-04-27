@@ -2,7 +2,8 @@
     server端主动发送广播给客户端
   
 ## client javascript
-    js目录下有对应javascript的第三方包
+    请求目录下有对应JS包，目前采用socket.io 2.1.0
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     
 - 代码例子
 
