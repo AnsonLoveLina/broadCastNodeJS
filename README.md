@@ -10,7 +10,7 @@
 
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script>
-        var socket = io.connect('http://localhost:3000?userId=xxx');
+        var socket = io.connect('http://localhost:3000?userName=xxx');
         socket.on("countMsg",function (data) {
             console.log(data)
         });
@@ -18,7 +18,7 @@
         var sendSocket = io.connect('http://localhost:3000');
         function sendDCN() {
             var data = {};
-            data.userName = "xxx";
+            data.roomName = "xxx";
             data.eventName = "countMsg";
             data.text = 99;
             sendSocket.emit("broadcastInfo",data);
