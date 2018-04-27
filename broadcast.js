@@ -1,4 +1,4 @@
-var getUserName = require('./util.js');
+var getUserName = require('./util');
 
 function initConnection(io) {
     io.on('connection', function (socket) {
