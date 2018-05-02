@@ -75,3 +75,5 @@
 
 例子：{"roomName":"xxx","eventName":"countMsg","text":"99"}
 {"roomName":"xxx","eventName":"countMsg","text":{"data","sdfdsf"}}
+
+## client java
