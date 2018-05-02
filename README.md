@@ -42,7 +42,7 @@
     
 客户端可以发送三个公共事件：register,unRegister,broadcastInfo。
 
-###register
+#####register
 
 - 用户名，重复注册，会自动注销之前注册的用户
 
@@ -52,7 +52,7 @@
 
 例子：{"group": "vvv"}
 
-###unRegister
+#####unRegister
 
 - 注销用户名
 
@@ -62,7 +62,7 @@
 
 例子：{"group": "vvv"}
 
-###broadcastInfo
+#####broadcastInfo
 
 - roomName
 发送房间名
