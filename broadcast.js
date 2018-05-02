@@ -13,26 +13,26 @@ function firstData(key, socket) {
 }
 
 function register(data, io, socket) {
-    if (data.userName) {
-        var userName = data.userName;
+    if (data.user) {
+        var user = data.user;
         //广播接收者
-        var roomPeoples = io.sockets.adapter.rooms[userName];
+        var roomPeoples = io.sockets.adapter.rooms[user];
         if (roomPeoples != undefined) {
             socket.emit("warn", "重复登录！之前已登录客户端将被注销！");
             for (var loginedSocketId in roomPeoples.sockets) {
-                console.log("客户端：" + loginedSocketId + ";" + userName + "已注销！");
-                socket.to(loginedSocketId).leave(userName);
+                console.log("客户端：" + loginedSocketId + ";" + user + "已注销！");
+                socket.to(loginedSocketId).leave(user);
             }
         }
 
-        console.log("客户端：" + socket.id + ";" + userName + "登录成功！");
-        socket.emit("info", userName + "登录成功！");
-        socket.join(userName);
-        firstData(userName, socket);
+        console.log("客户端：" + socket.id + ";" + user + "登录成功！");
+        socket.emit("info", user + "登录成功！");
+        socket.join(user);
+        firstData(user, socket);
 
         socket.on("disconnecting", function (reason) {
-            console.log(userName + "链接关闭，自动注销！");
-            socket.leave(userName);
+            console.log(user + "链接关闭，自动注销！");
+            socket.leave(user);
         });
     } else if (data.group) {
         var group = data.group;
@@ -49,10 +49,10 @@ function register(data, io, socket) {
 }
 
 function unRegister(data, io, socket) {
-    if (data.userName) {
-        var userName = data.userName;
-        console.log(userName + "链接关闭，自动注销！");
-        socket.leave(userName);
+    if (data.user) {
+        var user = data.user;
+        console.log(user + "链接关闭，自动注销！");
+        socket.leave(user);
     } else if (data.group) {
         var group = data.group;
         console.log("链接关闭，自动退出群组：" + group + "！");
@@ -60,7 +60,7 @@ function unRegister(data, io, socket) {
     }
 }
 
-function initConnection(io, tasks) {
+function initConnection(io) {
     io.on('connection', function (socket) {
         socket.on("register", function (data) {
             register(data, io, socket);
@@ -78,7 +78,7 @@ function initConnection(io, tasks) {
                     io.to(data.roomName).emit(data.eventName, data.text);
                 }
             } else {
-                socket.emit("err", "data格式错误！{userName,eventName,text,?namespace}");
+                socket.emit("err", "data格式错误！{roomName,eventName,text,?namespace}");
             }
         });
 

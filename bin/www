@@ -44,23 +44,24 @@ var receiveTask = {
     "and t.delete_state = '0' " +
     "and t.receive_state = 0 " +
     "group by ug.user_id ", "eventName": "receive", "defaultData": "0", "resultHandle": function (result) {
+        var task = receiveTask;
         for (var i = 0; i < result.rows.length; i++) {
             var key = result.rows[i][0];
             var value = result.rows[i][1];
-            if (receiveTask.preData) {
-                if (receiveTask.preData[key] && value != receiveTask.preData[key]) {
-                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + receiveTask.preData[key]);
-                    io.sockets.to(key).emit(receiveTask.eventName, value);
-                } else if (!receiveTask.preData[key]) {
+            if (task.preData) {
+                if (task.preData[key] && value != task.preData[key]) {
+                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
+                    io.sockets.to(key).emit(task.eventName, value);
+                } else if (!task.preData[key]) {
                     console.log(key + "，之前对应数据从未产生：" + value);
-                    io.sockets.to(key).emit(receiveTask.eventName, value);
+                    io.sockets.to(key).emit(task.eventName, value);
                 }
-            } else if (!receiveTask.preData) {
-                receiveTask.preData = {};
+            } else if (!task.preData) {
+                task.preData = {};
                 console.log(key + ",对应数据从未产生：" + value);
-                io.sockets.to(key).emit(receiveTask.eventName, value);
+                io.sockets.to(key).emit(task.eventName, value);
             }
-            receiveTask.preData[key] = value;
+            task.preData[key] = value;
         }
     }
 };

@@ -6,14 +6,14 @@
 <body>
 <h1>socketIo测试</h1>
 <input type="button" value="sendGroupRegister" onclick="sendGroupRegister()"/>
-<input type="button" value="sendUserNameBroadcastInfo" onclick="sendUserNameDCN()"/>
+<input type="button" value="sendUserBroadcastInfo" onclick="sendUserDCN()"/>
 <input type="button" value="sendGroupBroadcastInfo" onclick="sendGroupDCN()"/>
 </body>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script>
     var socket = io.connect('http://localhost:3000');
     socket.on("connect",function () {
-        socket.emit("register", {"userName": "6A2C1FBC70FE38EEE050007F010061E5"});
+        socket.emit("register", {"user": "6A2C1FBC70FE38EEE050007F010061E5"});
     });
 
     socket.on("receive", function (data) {
@@ -21,14 +21,14 @@
     });
 
     function unRegister(){
-        socket.emit("unRegister", {"userName": "6A2C1FBC70FE38EEE050007F010061E5"});
+        socket.emit("unRegister", {"user": "6A2C1FBC70FE38EEE050007F010061E5"});
     }
 
     function sendGroupRegister() {
         socket.emit("register", {"group": "vvv"});
     }
 
-    function sendUserNameDCN() {
+    function sendUserDCN() {
         var data = {};
         data.roomName = "xxx";
         data.eventName = "countMsg";
