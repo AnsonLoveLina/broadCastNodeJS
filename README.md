@@ -4,7 +4,7 @@
 ## client
 client分为：user和group两种。
 
-user是指一个user在只允许一个链接注册（一个链接js意味着一个io.connection）。
+user是指一个user在只允许一个链接注册（一个链接对应js意味着一个io.connection）。
 
 group是指一个group可以允许多个链接注册。
 
