@@ -53,7 +53,7 @@ var receiveTask = {
                     console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
                     io.sockets.to(key).emit(task.eventName, value);
                 } else if (!task.preData[key]) {
-                    console.log(key + "，之前对应数据从未产生：" + value);
+                    console.log(key + "，对应数据从未产生：" + value);
                     io.sockets.to(key).emit(task.eventName, value);
                 }
             } else if (!task.preData) {
@@ -66,7 +66,66 @@ var receiveTask = {
     }
 };
 
-tasks = [receiveTask];
+var feedbackTask = {
+    "sql": "select ug.user_id,count(1) " +
+    "from T_TASK t,T_USER_GROUP ug " +
+    "where instr(t.receive_group_id, ug.group_id) > 0 " +
+    "and t.delete_state = '0' " +
+    "and t.reminder_state = 1 " +
+    "group by ug.user_id ", "eventName": "feedback", "defaultData": "0", "resultHandle": function (result) {
+        var task = feedbackTask;
+        for (var i = 0; i < result.rows.length; i++) {
+            var key = result.rows[i][0];
+            var value = result.rows[i][1];
+            if (task.preData) {
+                if (task.preData[key] && value != task.preData[key]) {
+                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
+                    io.sockets.to(key).emit(task.eventName, value);
+                } else if (!task.preData[key]) {
+                    console.log(key + "，对应数据从未产生：" + value);
+                    io.sockets.to(key).emit(task.eventName, value);
+                }
+            } else if (!task.preData) {
+                task.preData = {};
+                console.log(key + ",对应数据从未产生：" + value);
+                io.sockets.to(key).emit(task.eventName, value);
+            }
+            task.preData[key] = value;
+        }
+    }
+};
+
+var reminderTask = {
+    "sql": "select t.create_id,COUNT(1) " +
+    "from T_TASK t, T_TASK_FEEDBACK f " +
+    "where t.id = f.task_id " +
+    "and f.feedback_state = 0 " +
+    "and t.delete_state = 0 " +
+    "and f.delete_state = 0 " +
+    "group by t.create_id", "eventName": "reminder", "defaultData": "0", "resultHandle": function (result) {
+        var task = reminderTask;
+        for (var i = 0; i < result.rows.length; i++) {
+            var key = result.rows[i][0];
+            var value = result.rows[i][1];
+            if (task.preData) {
+                if (task.preData[key] && value != task.preData[key]) {
+                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
+                    io.sockets.to(key).emit(task.eventName, value);
+                } else if (!task.preData[key]) {
+                    console.log(key + "，对应数据从未产生：" + value);
+                    io.sockets.to(key).emit(task.eventName, value);
+                }
+            } else if (!task.preData) {
+                task.preData = {};
+                console.log(key + ",对应数据从未产生：" + value);
+                io.sockets.to(key).emit(task.eventName, value);
+            }
+            task.preData[key] = value;
+        }
+    }
+};
+
+tasks = [receiveTask, feedbackTask, reminderTask];
 
 executeTasks();
 
