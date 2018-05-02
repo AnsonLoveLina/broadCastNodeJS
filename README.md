@@ -17,8 +17,8 @@ group是指一个group可以允许多个链接注册。
 broadcastInfo用于第三方发送给对应user或者group数据，相应事件eventName和内容text（内容可以是文本或者json）。
   
 ## client javascript
-    /**请求目录下有对应JS包，目前采用socket.io 2.1.0**/
-    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+请求目录下有对应JS包，目前采用socket.io 2.1.0
+    <pre><code><script type="text/javascript" src="/socket.io/socket.io.js"></script></code></pre>
     
 - 代码例子
 
