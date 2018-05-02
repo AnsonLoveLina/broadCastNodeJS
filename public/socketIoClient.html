@@ -5,22 +5,43 @@
 </head>
 <body>
 <h1>socketIo测试</h1>
-<input type="button" value="sendBroadcastInfo" onclick="sendDCN()"/>
+<input type="button" value="sendGroupRegister" onclick="sendGroupRegister()"/>
+<input type="button" value="sendUserNameBroadcastInfo" onclick="sendUserNameDCN()"/>
+<input type="button" value="sendGroupBroadcastInfo" onclick="sendGroupDCN()"/>
 </body>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script>
-    var socket = io.connect('http://localhost:3000?userName=xxx');
-    socket.on("countMsg",function (data) {
+    var socket = io.connect('http://localhost:3000');
+    socket.on("connect",function () {
+        socket.emit("register", {"userName": "6A2C1FBC70FE38EEE050007F010061E5"});
+    });
+
+    socket.on("receive", function (data) {
         console.log(data)
     });
 
-    var sendSocket = io.connect('http://localhost:3000');
-    function sendDCN() {
+    function unRegister(){
+        socket.emit("unRegister", {"userName": "6A2C1FBC70FE38EEE050007F010061E5"});
+    }
+
+    function sendGroupRegister() {
+        socket.emit("register", {"group": "vvv"});
+    }
+
+    function sendUserNameDCN() {
         var data = {};
         data.roomName = "xxx";
         data.eventName = "countMsg";
         data.text = 99;
-        sendSocket.emit("broadcastInfo",data);
+        socket.emit("broadcastInfo", data);
+    }
+
+    function sendGroupDCN() {
+        var data = {};
+        data.roomName = "vvv";
+        data.eventName = "countMsg";
+        data.text = 100;
+        socket.emit("broadcastInfo", data);
     }
 </script>
 </html>

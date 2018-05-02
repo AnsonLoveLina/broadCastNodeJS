@@ -25,6 +25,8 @@ var server = http.createServer(app);
 var pingInterval = process.env.pingInterval || '10000';
 var pingTimeout = process.env.pingTimeout || '5000';
 
+var executeTasks = require("../dataChange/notification");
+
 var io = require('socket.io')();
 
 io.attach(server, {
@@ -34,6 +36,38 @@ io.attach(server, {
     pingTimeout: pingTimeout,
     cookie: false
 });
+
+var receiveTask = {
+    "sql": "select ug.user_id, count(1) " +
+    "from T_TASK t,T_USER_GROUP ug " +
+    "where instr(t.receive_group_id, ug.group_id) > 0 " +
+    "and t.delete_state = '0' " +
+    "and t.receive_state = 0 " +
+    "group by ug.user_id ", "eventName": "receive", "defaultData": "0", "resultHandle": function (result) {
+        for (var i = 0; i < result.rows.length; i++) {
+            var key = result.rows[i][0];
+            var value = result.rows[i][1];
+            if (receiveTask.preData) {
+                if (receiveTask.preData[key] && value != receiveTask.preData[key]) {
+                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + receiveTask.preData[key]);
+                    io.sockets.to(key).emit(receiveTask.eventName, value);
+                } else if (!receiveTask.preData[key]) {
+                    console.log(key + "，之前对应数据从未产生：" + value);
+                    io.sockets.to(key).emit(receiveTask.eventName, value);
+                }
+            } else if (!receiveTask.preData) {
+                receiveTask.preData = {};
+                console.log(key + ",对应数据从未产生：" + value);
+                io.sockets.to(key).emit(receiveTask.eventName, value);
+            }
+            receiveTask.preData[key] = value;
+        }
+    }
+};
+
+tasks = [receiveTask];
+
+executeTasks();
 
 broadcast(io);
 
