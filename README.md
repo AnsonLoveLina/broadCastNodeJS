@@ -17,12 +17,12 @@ group是指一个group可以允许多个链接注册。
 broadcastInfo用于第三方发送给对应user或者group数据，相应事件eventName和内容text（内容可以是文本或者json）。
   
 ## client javascript
-    请求目录下有对应JS包，目前采用socket.io 2.1.0
+    /**请求目录下有对应JS包，目前采用socket.io 2.1.0**/
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     
 - 代码例子
 
-
+    <pre><code>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io.connect('http://localhost:3000');
@@ -54,6 +54,7 @@ broadcastInfo用于第三方发送给对应user或者group数据，相应事件e
             socket.emit("broadcastInfo", data);
         }
     </script>
+    </code></pre>
     
 客户端可以发送三个公共事件：register,unRegister,broadcastInfo。
 
