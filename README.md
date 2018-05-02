@@ -62,21 +62,21 @@ broadcastInfo用于第三方发送给对应user或者group数据，相应事件e
 
 - 用户名，重复注册，会自动注销之前注册的用户
 
-例子：{"user": "6A2C1FBC70FE38EEE050007F010061E5"}
+>例子：{"user": "6A2C1FBC70FE38EEE050007F010061E5"}
 
 - 群组，允许重复注册
 
-例子：{"group": "vvv"}
+>例子：{"group": "vvv"}
 
 **unRegister**
 
 - 注销用户名
 
-例子：{"user": "6A2C1FBC70FE38EEE050007F010061E5"}
+>例子：{"user": "6A2C1FBC70FE38EEE050007F010061E5"}
 
 - 注销群组
 
-例子：{"group": "vvv"}
+>例子：{"group": "vvv"}
 
 **broadcastInfo**
 
@@ -89,7 +89,7 @@ broadcastInfo用于第三方发送给对应user或者group数据，相应事件e
 - text
 发送内容
 
-例子：{"roomName":"xxx","eventName":"countMsg","text":"99"}
+>例子：{"roomName":"xxx","eventName":"countMsg","text":"99"}
 {"roomName":"xxx","eventName":"countMsg","text":{"data","sdfdsf"}}
 
 ## client java
