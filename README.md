@@ -58,7 +58,7 @@ broadcastInfo用于第三方发送给对应user或者group数据，相应事件e
     
 客户端可以发送三个公共事件：register,unRegister,broadcastInfo。
 
-###**register**
+**register**
 
 - 用户名，重复注册，会自动注销之前注册的用户
 
@@ -68,7 +68,7 @@ broadcastInfo用于第三方发送给对应user或者group数据，相应事件e
 
 例子：{"group": "vvv"}
 
-###**unRegister**
+**unRegister**
 
 - 注销用户名
 
@@ -78,7 +78,7 @@ broadcastInfo用于第三方发送给对应user或者group数据，相应事件e
 
 例子：{"group": "vvv"}
 
-###**broadcastInfo**
+**broadcastInfo**
 
 - roomName
 发送房间名
