@@ -13,18 +13,21 @@ function execSql(sql, resutlHandle) {
         function (err, connection) {
             if (err) {
                 console.error(err.message);
+                setTimeout(function () {
+                    execSql(sql, resutlHandle);
+                }, 10000);
                 return;
             }
             // try {
-                connection.execute(sql,
-                    function (err, result) {
-                        if (err) {
-                            console.error(err.message);
-                            doRelease(connection);
-                            return;
-                        }
-                        resutlHandle(result);
-                    });
+            connection.execute(sql,
+                function (err, result) {
+                    if (err) {
+                        console.error(err.message);
+                        doRelease(connection);
+                        return;
+                    }
+                    resutlHandle(result);
+                });
             // } finally {
             //     doRelease(connection);
             // }
