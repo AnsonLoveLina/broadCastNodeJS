@@ -95,3 +95,6 @@ broadcastInfo用于第三方发送给对应user或者group数据，相应事件e
 ## client java
 
 之后补充！！！！
+
+
+npm:[This link](https://www.npmjs.com/package/broadcastnodejs)
