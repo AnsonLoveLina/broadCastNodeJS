@@ -14,6 +14,9 @@ function resutlHandle(sql, resutlHandle, rule) {
 }
 
 function executeTasks() {
+    if (tasks.length==0){
+        return;
+    }
     var asyncTasks = [];
     tasks.forEach(function (task) {
         asyncTasks.push(function () {
