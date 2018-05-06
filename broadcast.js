@@ -36,6 +36,13 @@ function register(data, io, socket) {
         });
     } else if (data.group) {
         var group = data.group;
+        if (group.indexOf("pairGroup") == 0) {
+            var roomPeoples = io.sockets.adapter.rooms[group];
+            //第二个注册的人会发送offer
+            if (roomPeoples != undefined) {
+                socket.emit("pairOffer", true);
+            }
+        }
         console.log("客户端：" + socket.id + "加入群组：" + group + "成功！");
         socket.emit("info", "加入群组：" + group + "成功！");
         socket.join(group);
@@ -72,10 +79,12 @@ function initConnection(io) {
         //广播发送者
         socket.on("broadcastInfo", function (data) {
             if (data.roomName && data.eventName && data.text) {
+                // console.log("socket:"+socket.id);
+                // console.log("namespace:" + data.namespace + ",roomName:" + data.roomName + ",eventName:" + data.eventName + ",text:" + data.text);
                 if (data.namespace) {
                     io.of(data.namespace).to(data.roomName).emit(data.eventName, data.text);
                 } else {
-                    io.to(data.roomName).emit(data.eventName, data.text);
+                    socket.to(data.roomName).emit(data.eventName, data.text);
                 }
             } else {
                 socket.emit("err", "data格式错误！{roomName,eventName,text,?namespace}");

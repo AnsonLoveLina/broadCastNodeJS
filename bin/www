@@ -22,6 +22,7 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+/*socket.io*/
 var pingInterval = process.env.pingInterval || '10000';
 var pingTimeout = process.env.pingTimeout || '5000';
 
@@ -125,7 +126,8 @@ var reminderTask = {
     }
 };
 
-tasks = [receiveTask, feedbackTask, reminderTask];
+// tasks = [receiveTask, feedbackTask, reminderTask];
+tasks = [];
 
 executeTasks();
 
