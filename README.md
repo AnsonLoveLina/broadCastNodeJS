@@ -15,6 +15,8 @@ group是指一个group可以允许多个链接注册。
 假如需要注销，不再收到消息，则可以调用unRegister事件进行注销。
 
 broadcastInfo用于第三方发送给对应user或者group数据，相应事件eventName和内容text（内容可以是文本或者json）。
+
+注：假如发送目标group包含发送人自己，发送人是不会收到消息的。
   
 ## client javascript
 请求目录下有对应JS包，目前采用socket.io 2.1.0
