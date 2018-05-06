@@ -39,7 +39,7 @@
     function sendGroupDCN() {
         var data = {};
         data.roomName = "vvv";
-        data.eventName = "countMsg";
+        data.eventName = "receive";
         data.text = 100;
         socket.emit("broadcastInfo", data);
     }

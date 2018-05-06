@@ -1,0 +1,119 @@
+<html>
+<body>
+Local: <br>
+<video id="localVideo" autoplay></video>
+<br>
+Remote: <br>
+<video id="remoteVideo" autoplay></video>
+
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script>
+    function getRomm() {
+        var url = window.location.href;
+        var params = url.split("/");
+        return params[params.length - 1];
+    }
+
+    var room = "pairGroup";
+
+    var localVideo = document.querySelector('video#localVideo');
+    var remoteVideo = document.querySelector('video#remoteVideo');
+    var offerOptions = {
+        offerToReceiveAudio: 1,
+        offerToReceiveVideo: 1
+    };
+
+    // 与信令服务器的WebSocket连接
+    var socket = io.connect('http://localhost:3000');
+    socket.on("connect", function () {
+        socket.emit("register", {"group": room});
+    });
+
+    // stun和turn服务器
+    var iceServer = {
+        "iceServers": [{
+            "url": "stun:stun.l.google.com:19302"
+        }, {
+            "url": "turn:numb.viagenie.ca",
+            "username": "webrtc@live.com",
+            "credential": "muazkh"
+        }]
+    };
+
+    var pc = new RTCPeerConnection(iceServer);
+
+    // 发送ICE候选到其他客户端
+    pc.onicecandidate = function (event) {
+        if (event.candidate !== null) {
+            socket.emit("broadcastInfo", {
+                "roomName": room, "eventName": "singleInfo", "text": JSON.stringify({
+                    "event": "_ice_candidate",
+                    "data": {
+                        "candidate": event.candidate
+                    }
+                })
+            });
+            console.log("_ice_candidate finish!");
+        }
+    };
+
+    var constraints = window.constraints = {
+        audio: true,
+        video: true
+    };
+
+    function handleSuccess(stream) {
+        //绑定本地媒体流到video标签用于输出
+        localVideo.srcObject = stream;
+        //向PeerConnection中加入需要发送的流
+        pc.addStream(stream);
+    }
+
+    function handleError(error) {
+        console.error('getUserMedia error: ' + error);
+    }
+
+    navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
+
+    // 如果检测到媒体流连接到本地，将其绑定到一个video标签上输出
+    pc.onaddstream = function (event) {
+        remoteVideo.srcObject = event.stream;
+    };
+
+    //处理到来的信令
+    socket.on("singleInfo", function (jsonData) {
+        json = JSON.parse(jsonData);
+        console.log('onmessage: ', json);
+        //如果是一个ICE的候选，则将其加入到PeerConnection中，否则设定对方的session描述为传递过来的描述
+        if (json.event === "_ice_candidate") {
+            pc.addIceCandidate(new RTCIceCandidate(json.data.candidate));
+        } else {
+            pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp));
+            // 如果是一个offer，那么需要回复一个answer
+            if (json.event === "_offer") {
+                pc.createAnswer(sendAnswerFn, function (error) {
+                    console.log('Failure callback: ' + error);
+                });
+            }
+        }
+    });
+
+    // 发送offer和answer的函数，发送本地session描述
+    var sendAnswerFn = function (desc) {
+        pc.setLocalDescription(desc).then(
+            function () {
+                socket.emit("broadcastInfo", {
+                    "roomName": room, "eventName": "singleInfo", "text": JSON.stringify({
+                        "event": "_answer",
+                        "data": {
+                            "sdp": desc
+                        }
+                    })
+                });
+                console.log("_answer finish!");
+            }
+        );
+    };
+</script>
+</body>
+</html>
