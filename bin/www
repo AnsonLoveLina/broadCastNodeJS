@@ -8,13 +8,26 @@ var app = require('../app');
 var broadcast = require('../broadcast');
 var debug = require('debug')('testexpress:server');
 var http = require('http');
+var path = require('path');
+var https = require('https');
+var fs = require('fs');
 
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || '3000');
+var httpsport = normalizePort(process.env.HTTPSPORT || '3001');
 app.set('port', port);
+
+var opts = {
+    key: fs.readFileSync(path.join(__dirname, '../certificate/server.key'), 'utf8'),
+    cert: fs.readFileSync(path.join(__dirname, '../certificate/server.crt'), 'utf8')
+};
+// var privateKey  = fs.readFileSync(path.join(__dirname, '../certificate/private.pem'), 'utf8');
+// var certificate = fs.readFileSync(path.join(__dirname, '../certificate/file.crt'), 'utf8');
+// var credentials = {key: privateKey, cert: certificate};
+var httpsServer = https.createServer(opts, app);
 
 /**
  * Create HTTP server.
@@ -31,6 +44,14 @@ var executeTasks = require("../dataChange/notification");
 var io = require('socket.io')();
 
 io.attach(server, {
+    //间隔时间ping客户端
+    pingInterval: pingInterval,
+    //假如客户端ping超时则关闭链接
+    pingTimeout: pingTimeout,
+    cookie: false
+});
+
+io.attach(httpsServer, {
     //间隔时间ping客户端
     pingInterval: pingInterval,
     //假如客户端ping超时则关闭链接
@@ -136,7 +157,7 @@ broadcast(io);
 /**
  * Listen on provided port, on all network interfaces.
  */
-
+httpsServer.listen(httpsport);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);

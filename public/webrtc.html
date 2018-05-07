@@ -24,7 +24,7 @@ Remote: <br>
     };
 
     // 与信令服务器的WebSocket连接
-    var socket = io.connect('http://localhost:3000');
+    var socket = io.connect('https://192.168.1.125:3001');
     socket.on("connect", function () {
         socket.emit("register", {"group": room});
     });
