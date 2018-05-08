@@ -41,6 +41,8 @@ function register(data, io, socket) {
             //第二个注册的人会发送offer
             if (roomPeoples != undefined) {
                 socket.emit("pairOffer", true);
+            } else {
+                socket.emit("pairOffer", false);
             }
         }
         console.log("客户端：" + socket.id + "加入群组：" + group + "成功！");

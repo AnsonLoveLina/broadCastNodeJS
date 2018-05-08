@@ -24,16 +24,12 @@ Remote: <br>
     };
 
     // 与信令服务器的WebSocket连接
-    var socket = io.connect('https://192.168.1.125:3001');
+    var socket = io.connect('https://211.157.146.7:8812');
     socket.on("connect", function () {
         socket.emit("register", {"group": room});
     });
 
     var isOfferer = false;
-
-    socket.on("pairOffer", function (data) {
-        isOfferer = true;
-    });
 
     // stun和turn服务器
     var iceServer = {
@@ -63,45 +59,58 @@ Remote: <br>
         }
     };
 
+    // 如果检测到媒体流连接到本地，将其绑定到一个video标签上输出
+    pc.onaddstream = function (event) {
+        remoteVideo.srcObject = event.stream;
+    };
+
     var constraints = window.constraints = {
         audio: true,
         video: true
     };
 
-    function handleSuccess(stream) {
-        //绑定本地媒体流到video标签用于输出
-        localVideo.srcObject = stream;
-        //向PeerConnection中加入需要发送的流
-        pc.addStream(stream);
-        if (isOfferer){
-            pc.createOffer(offerOptions).then(function (desc) {
-                pc.setLocalDescription(desc).then(
-                    function () {
-                        socket.emit("broadcastInfo", {
-                            "roomName": room, "eventName": "singleInfo", "text": JSON.stringify({
-                                "event": "_offer",
-                                "data": {
-                                    "sdp": desc
-                                }
-                            })
-                        });
-                        console.log("send offer finish!");
-                    },
-                    function (error) {
-                        console.error('Failed to set session description: ' + error.toString());
-                    }
-                );
-            }, function (error) {
-                console.error('Failure callback: ' + error);
-            });
+    socket.on("pairOffer", function (data) {
+        if (data == true) {
+            isOfferer = true;
+        } else {
+            isOfferer = false;
         }
-    }
 
-    function handleError(error) {
-        console.error('getUserMedia error: ' + error);
-    }
+        function handleSuccess(stream) {
+            //绑定本地媒体流到video标签用于输出
+            localVideo.srcObject = stream;
+            //向PeerConnection中加入需要发送的流
+            pc.addStream(stream);
+            if (isOfferer) {
+                pc.createOffer(offerOptions).then(function (desc) {
+                    pc.setLocalDescription(desc).then(
+                        function () {
+                            socket.emit("broadcastInfo", {
+                                "roomName": room, "eventName": "singleInfo", "text": JSON.stringify({
+                                    "event": "_offer",
+                                    "data": {
+                                        "sdp": desc
+                                    }
+                                })
+                            });
+                            console.log("send offer finish!");
+                        },
+                        function (error) {
+                            console.error('Failed to set session description: ' + error.toString());
+                        }
+                    );
+                }, function (error) {
+                    console.error('Failure callback: ' + error);
+                });
+            }
+        }
 
-    navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
+        function handleError(error) {
+            console.error('getUserMedia error: ' + error);
+        }
+
+        navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
+    });
 
     //处理到来的信令
     socket.on("singleInfo", function (jsonData) {
@@ -115,34 +124,26 @@ Remote: <br>
             pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp));
             // 如果是一个offer，那么需要回复一个answer
             if (json.event === "_offer") {
-                pc.createAnswer(sendAnswerFn, function (error) {
+                pc.createAnswer(function (desc) {
+                    pc.setLocalDescription(desc).then(
+                        function () {
+                            socket.emit("broadcastInfo", {
+                                "roomName": room, "eventName": "singleInfo", "text": JSON.stringify({
+                                    "event": "_answer",
+                                    "data": {
+                                        "sdp": desc
+                                    }
+                                })
+                            });
+                            console.log("_answer finish!");
+                        }
+                    );
+                }, function (error) {
                     console.log('Failure callback: ' + error);
                 });
             }
         }
     });
-
-    // 发送offer和answer的函数，发送本地session描述
-    var sendAnswerFn = function (desc) {
-        pc.setLocalDescription(desc).then(
-            function () {
-                socket.emit("broadcastInfo", {
-                    "roomName": room, "eventName": "singleInfo", "text": JSON.stringify({
-                        "event": "_answer",
-                        "data": {
-                            "sdp": desc
-                        }
-                    })
-                });
-                console.log("_answer finish!");
-            }
-        );
-    };
-
-    // 如果检测到媒体流连接到本地，将其绑定到一个video标签上输出
-    pc.onaddstream = function (event) {
-        remoteVideo.srcObject = event.stream;
-    };
 </script>
 </body>
 </html>
