@@ -20,6 +20,10 @@
         console.log(data)
     });
 
+    socket.on("info", function (data) {
+        console.log(data)
+    });
+
     function unRegister(){
         socket.emit("unRegister", {"user": "6A2C1FBC70FE38EEE050007F010061E5"});
     }

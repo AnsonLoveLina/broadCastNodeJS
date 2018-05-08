@@ -81,8 +81,13 @@ function initConnection(io) {
         //广播发送者
         socket.on("broadcastInfo", function (data) {
             if (data.roomName && data.eventName && data.text) {
-                // console.log("socket:"+socket.id);
-                // console.log("namespace:" + data.namespace + ",roomName:" + data.roomName + ",eventName:" + data.eventName + ",text:" + data.text);
+                console.log("socket:" + socket.id);
+                console.log("namespace:" + data.namespace + ",roomName:" + data.roomName + ",eventName:" + data.eventName + ",text:" + data.text);
+                var roomPeoples = io.sockets.adapter.rooms[data.roomName];
+                if (!roomPeoples) {
+                    socket.emit("info", "roomName：" + data.roomName + "不存在！");
+                    return;
+                }
                 if (data.namespace) {
                     io.of(data.namespace).to(data.roomName).emit(data.eventName, data.text);
                 } else {
