@@ -147,8 +147,133 @@ var reminderTask = {
     }
 };
 
-// tasks = [receiveTask, feedbackTask, reminderTask];
-tasks = [];
+var taskStreamTask = {
+    "sql": "select t.group_id,count(1) from T_TASK t " +
+    "group by t.group_id", "eventName": "taskStream", "defaultData": "0", "resultHandle": function (result) {
+        var task = taskStreamTask;
+        for (var i = 0; i < result.rows.length; i++) {
+            var key = result.rows[i][0];
+            var value = result.rows[i][1];
+            if (task.preData) {
+                if (task.preData[key] && value != task.preData[key]) {
+                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
+                    io.sockets.to(key).emit(task.eventName, value);
+                } else if (!task.preData[key]) {
+                    console.log(key + "，对应数据从未产生：" + value);
+                    io.sockets.to(key).emit(task.eventName, value);
+                }
+            } else if (!task.preData) {
+                task.preData = {};
+                console.log(key + ",对应数据从未产生：" + value);
+                io.sockets.to(key).emit(task.eventName, value);
+            }
+            task.preData[key] = value;
+        }
+    }
+};
+
+var taskFeedbackStreamTask = {
+    "sql": "select t.group_id,count(1) from T_TASK_FEEDBACK t " +
+    "group by t.group_id", "eventName": "taskFeedbackStream", "defaultData": "0", "resultHandle": function (result) {
+        var task = taskFeedbackStreamTask;
+        for (var i = 0; i < result.rows.length; i++) {
+            var key = result.rows[i][0];
+            var value = result.rows[i][1];
+            if (task.preData) {
+                if (task.preData[key] && value != task.preData[key]) {
+                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
+                    io.sockets.to(key).emit(task.eventName, value);
+                } else if (!task.preData[key]) {
+                    console.log(key + "，对应数据从未产生：" + value);
+                    io.sockets.to(key).emit(task.eventName, value);
+                }
+            } else if (!task.preData) {
+                task.preData = {};
+                console.log(key + ",对应数据从未产生：" + value);
+                io.sockets.to(key).emit(task.eventName, value);
+            }
+            task.preData[key] = value;
+        }
+    }
+};
+
+var groupMessageTask = {
+    "sql": "select t.group_id,count(1) from T_GROUP_MESSAGE t " +
+    "group by t.group_id", "eventName": "groupMessage", "defaultData": "0", "resultHandle": function (result) {
+        var task = groupMessageTask;
+        for (var i = 0; i < result.rows.length; i++) {
+            var key = result.rows[i][0];
+            var value = result.rows[i][1];
+            if (task.preData) {
+                if (task.preData[key] && value != task.preData[key]) {
+                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
+                    io.sockets.to(key).emit(task.eventName, value);
+                } else if (!task.preData[key]) {
+                    console.log(key + "，对应数据从未产生：" + value);
+                    io.sockets.to(key).emit(task.eventName, value);
+                }
+            } else if (!task.preData) {
+                task.preData = {};
+                console.log(key + ",对应数据从未产生：" + value);
+                io.sockets.to(key).emit(task.eventName, value);
+            }
+            task.preData[key] = value;
+        }
+    }
+};
+
+var groupStatusTask = {
+    "sql": "select k.id, " +
+    "decode(count(s.id), 0, 0, 1) taksStatus, " +
+    "decode(count(u.id), 0, 0, 2) peopleStatus, " +
+    "decode(nvl(a.archive_reason, 0), 0, 0, 1, 4, 3) archiveStatus, " +
+    "nvl(count(u.id), 0) peopleCount, " +
+    "nvl(count(f.id), 0) feedbackCount " +
+    "from T_GROUP k " +
+    "left join T_TASK s " +
+    "on k.id = s.group_id " +
+    "left join T_GROUP_SUSPECTS u " +
+    "on k.id = u.group_id " +
+    "left join T_GROUP_SUSPECTS_FEEDBACK f " +
+    "on k.id = f.group_id " +
+    "left join T_GROUP_ARCHIVE a " +
+    "on k.id = a.group_id " +
+    "group by k.id, a.archive_reason",
+    "eventName": "groupStatus",
+    "defaultData": "0",
+    "resultHandle": function (result) {
+        var task = groupStatusTask;
+        for (var i = 0; i < result.rows.length; i++) {
+            var key = result.rows[i][0];
+            var value = {
+                    status: result.rows[i][3] == 0 ? (result.rows[i][2] == 0 ? result.rows[i][1] : result.rows[i][2]) : result.rows[i][3],
+                    peopleCount: result.rows[i][4],
+                    feedbackCount: result.rows[i][5]
+                }
+            ;
+            if (task.preData) {
+                if (task.preData[key] && value.status != task.preData[key].status) {
+                    console.log(key + "，对应数据发生变化：" + value.status + "，之前的：" + task.preData[key].status);
+                    io.sockets.to(key).emit(task.eventName, value);
+                } else if (task.preData[key] && (value.peopleCount != task.preData[key].peopleCount || value.feedbackCount != task.preData[key].feedbackCount)) {
+                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
+                    io.sockets.to(key).emit(task.eventName, value);
+                } else if (!task.preData[key]) {
+                    console.log(key + "，对应数据从未产生：" + value);
+                    io.sockets.to(key).emit(task.eventName, value);
+                }
+            } else if (!task.preData) {
+                task.preData = {};
+                console.log(key + ", 对应数据从未产生：" + value);
+                io.sockets.to(key).emit(task.eventName, value);
+            }
+            task.preData[key] = value;
+        }
+    }
+};
+
+tasks = [receiveTask, feedbackTask, reminderTask, taskStreamTask, taskFeedbackStreamTask, groupMessageTask, groupStatusTask];
+// tasks = [];
 
 executeTasks();
 

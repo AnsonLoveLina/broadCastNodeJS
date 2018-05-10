@@ -17,11 +17,27 @@
     });
 
     socket.on("receive", function (data) {
-        console.log(data)
+        console.log("receive"+data);
     });
 
     socket.on("info", function (data) {
-        console.log(data)
+        console.log("info"+data);
+    });
+
+    socket.on("groupStatus", function (data) {
+        console.log("groupStatus"+data);
+    });
+
+    socket.on("groupMessage", function (data) {
+        console.log("groupMessage"+data);
+    });
+
+    socket.on("taskFeedbackStream", function (data) {
+        console.log("taskFeedbackStream"+data);
+    });
+
+    socket.on("taskStream", function (data) {
+        console.log("taskStream"+data);
     });
 
     function unRegister(){
