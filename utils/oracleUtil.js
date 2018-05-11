@@ -3,22 +3,26 @@ var config = require('../config').initConfig();
 var async = require("async");
 var oraclePool = null;
 
-var initOracleConnectPool = function (getConnection) {
-    oraclePool = oracledb.createPool(config.connInfo, function (err, pool) {
-        getConnection(err, pool);
+function initOracleConnectPool(callback) {
+    oracledb.createPool(config.connInfo, function (err, pool) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("连接池创建成功！");
+            oraclePool = pool;
+            callback(pool);
+        }
     });
-};
-
-execSql("select 1 from dual", function (result) {
-    console.log(result.rows);
-});
+}
 
 function execSql(sql, resultHandle) {
-    async.series([function (getConnection) {
+    async.series([function (callback) {
         if (!oraclePool) {
-            initOracleConnectPool(getConnection);
+            initOracleConnectPool(callback);
+        } else {
+            callback(oraclePool);
         }
-    }], function (err, pool) {
+    }], function (pool) {
         pool.getConnection(function (err, connection) {
             if (err) {
                 console.error(err.message);

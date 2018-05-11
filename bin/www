@@ -224,9 +224,9 @@ var groupMessageTask = {
 
 var groupStatusTask = {
     "sql": "select k.id, " +
-    "decode(count(s.id), 0, 0, 1) taksStatus, " +
-    "decode(count(u.id), 0, 0, 2) peopleStatus, " +
-    "decode(nvl(a.archive_reason, 0), 0, 0, 1, 4, 3) archiveStatus, " +
+    "decode(count(s.id), 0, 0, 2) taksStatus, " +
+    "decode(count(u.id), 0, 0, 3) peopleStatus, " +
+    "decode(nvl(a.archive_reason, 0), 0, 0, 1, 5, 4) archiveStatus, " +
     "nvl(count(u.id), 0) peopleCount, " +
     "nvl(count(f.id), 0) feedbackCount " +
     "from T_GROUP k " +
