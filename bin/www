@@ -64,9 +64,9 @@ io.attach(httpsServer, {
 
 broadcast(io);
 
-var executeTasks = require("../dataChange/notification");
+var notification = require("../dataChange/notification");
 
-executeTasks(io);
+notification.executeTasks(io);
 
 /**
  * Listen on provided port, on all network interfaces.

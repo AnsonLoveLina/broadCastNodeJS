@@ -255,4 +255,6 @@ function executeTasks(myIo) {
 //
 // console.log(999);
 
-module.exports = executeTasks;
+exports.executeTasks = executeTasks;
+
+exports.tasks = tasks;
