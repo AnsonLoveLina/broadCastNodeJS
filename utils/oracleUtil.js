@@ -4,6 +4,7 @@ var async = require("async");
 var oraclePool = null;
 
 function initOracleConnectPool(callback) {
+    oracledb.poolMax = 10;
     oracledb.createPool(config.connInfo, function (err, pool) {
         if (err) {
             console.log(err);
@@ -25,6 +26,7 @@ function execSql(sql, resultHandle) {
     }], function (pool) {
         pool.getConnection(function (err, connection) {
             if (err) {
+                console.log(pool);
                 console.error(err.message);
                 setTimeout(function () {
                     execSql(sql, resultHandle);
@@ -39,6 +41,7 @@ function execSql(sql, resultHandle) {
                         return;
                     }
                     resultHandle(result);
+                    connection.close();
                 });
         });
     });
