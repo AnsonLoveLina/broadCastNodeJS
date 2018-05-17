@@ -4,6 +4,67 @@ var async = require("async");
 
 var io = null;
 
+// function handlerResult(result, task, io) {
+//     if (task.preData) {
+//         var resultMap = {};
+//         for (var i = 0; i < result.rows.length; i++) {
+//             var resultKey = result.rows[i][0];
+//             var resultValue = result.rows[i][1];
+//             resultMap[resultKey] = resultValue;
+//         }
+//
+//         for (var key in task.preData) {
+//             if (!resultMap[key]) {
+//                 resultMap[key] = task.defaultData;
+//             } else if (resultMap[key] != task.preData[key]) {
+//                 io.sockets.to(key).emit(task.eventName, resultMap[key]);
+//             }
+//             console.log(key + "，对应数据发生变化：" + task.preData[key] + "，之前的：" + resultMap[key]);
+//             task.preData[key] = resultMap[key];
+//         }
+//     } else if (!task.preData) {
+//         task.preData = {};
+//         for (var i = 0; i < result.rows.length; i++) {
+//             var resultKey = result.rows[i][0];
+//             var resultValue = result.rows[i][1];
+//             console.log(resultKey + ",对应数据从未产生：" + resultValue);
+//             io.sockets.to(resultKey).emit(task.eventName, resultValue);
+//             task.preData[resultValue] = resultValue;
+//         }
+//     }
+// }
+
+function handlerResult(result, task, io) {
+    var resultMap = {};
+    for (var i = 0; i < result.rows.length; i++) {
+        var key = result.rows[i][0];
+        var value = result.rows[i][1];
+        resultMap[key] = value;
+        if (task.preData) {
+            if (task.preData[key] && value != task.preData[key]) {
+                console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
+                io.sockets.to(key).emit(task.eventName, value);
+            } else if (!task.preData[key]) {
+                console.log(key + "，对应数据从未产生：" + value);
+                io.sockets.to(key).emit(task.eventName, value);
+            }
+        } else if (!task.preData) {
+            task.preData = {};
+            console.log(key + ",对应数据从未产生：" + value);
+            io.sockets.to(key).emit(task.eventName, value);
+        }
+        task.preData[key] = value;
+    }
+
+    for (var key in task.preData) {
+        if (!resultMap[key]) {
+            console.log(key + "，对应数据发生变化：" + task.defaultData + "，之前的：" + task.preData[key]);
+            io.sockets.to(key).emit(task.eventName, task.defaultData);
+            delete task.preData[key];
+        }
+    }
+}
+
 var receiveTask = {
     "sql": "select ug.user_id, count(1) " +
     "from T_TASK t,T_USER_GROUP ug " +
@@ -11,25 +72,7 @@ var receiveTask = {
     "and t.delete_state = '0' " +
     "and t.receive_state = 0 " +
     "group by ug.user_id ", "eventName": "receive", "defaultData": "0", "resultHandle": function (result) {
-        var task = receiveTask;
-        for (var i = 0; i < result.rows.length; i++) {
-            var key = result.rows[i][0];
-            var value = result.rows[i][1];
-            if (task.preData) {
-                if (task.preData[key] && value != task.preData[key]) {
-                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
-                    io.sockets.to(key).emit(task.eventName, value);
-                } else if (!task.preData[key]) {
-                    console.log(key + "，对应数据从未产生：" + value);
-                    io.sockets.to(key).emit(task.eventName, value);
-                }
-            } else if (!task.preData) {
-                task.preData = {};
-                console.log(key + ",对应数据从未产生：" + value);
-                io.sockets.to(key).emit(task.eventName, value);
-            }
-            task.preData[key] = value;
-        }
+        handlerResult(result, receiveTask, io);
     }
 };
 
@@ -40,130 +83,40 @@ var feedbackTask = {
     "and t.delete_state = '0' " +
     "and t.reminder_state = 1 " +
     "group by ug.user_id ", "eventName": "feedback", "defaultData": "0", "resultHandle": function (result) {
-        var task = feedbackTask;
-        for (var i = 0; i < result.rows.length; i++) {
-            var key = result.rows[i][0];
-            var value = result.rows[i][1];
-            if (task.preData) {
-                if (task.preData[key] && value != task.preData[key]) {
-                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
-                    io.sockets.to(key).emit(task.eventName, value);
-                } else if (!task.preData[key]) {
-                    console.log(key + "，对应数据从未产生：" + value);
-                    io.sockets.to(key).emit(task.eventName, value);
-                }
-            } else if (!task.preData) {
-                task.preData = {};
-                console.log(key + ",对应数据从未产生：" + value);
-                io.sockets.to(key).emit(task.eventName, value);
-            }
-            task.preData[key] = value;
-        }
+        handlerResult(result, feedbackTask, io);
     }
 };
 
 var reminderTask = {
-    "sql": "select t.create_id,COUNT(1) " +
+    "sql": "select t.create_id,COUNT(distinct t.id) " +
     "from T_TASK t, T_TASK_FEEDBACK f " +
     "where t.id = f.task_id " +
     "and f.feedback_state = 0 " +
     "and t.delete_state = 0 " +
     "and f.delete_state = 0 " +
     "group by t.create_id", "eventName": "reminder", "defaultData": "0", "resultHandle": function (result) {
-        var task = reminderTask;
-        for (var i = 0; i < result.rows.length; i++) {
-            var key = result.rows[i][0];
-            var value = result.rows[i][1];
-            if (task.preData) {
-                if (task.preData[key] && value != task.preData[key]) {
-                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
-                    io.sockets.to(key).emit(task.eventName, value);
-                } else if (!task.preData[key]) {
-                    console.log(key + "，对应数据从未产生：" + value);
-                    io.sockets.to(key).emit(task.eventName, value);
-                }
-            } else if (!task.preData) {
-                task.preData = {};
-                console.log(key + ",对应数据从未产生：" + value);
-                io.sockets.to(key).emit(task.eventName, value);
-            }
-            task.preData[key] = value;
-        }
+        handlerResult(result, reminderTask, io);
     }
 };
 
 var taskStreamTask = {
     "sql": "select t.group_id,count(1) from T_TASK t " +
     "group by t.group_id", "eventName": "taskStream", "defaultData": "0", "resultHandle": function (result) {
-        var task = taskStreamTask;
-        for (var i = 0; i < result.rows.length; i++) {
-            var key = result.rows[i][0];
-            var value = result.rows[i][1];
-            if (task.preData) {
-                if (task.preData[key] && value != task.preData[key]) {
-                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
-                    io.sockets.to(key).emit(task.eventName, value);
-                } else if (!task.preData[key]) {
-                    console.log(key + "，对应数据从未产生：" + value);
-                    io.sockets.to(key).emit(task.eventName, value);
-                }
-            } else if (!task.preData) {
-                task.preData = {};
-                console.log(key + ",对应数据从未产生：" + value);
-                io.sockets.to(key).emit(task.eventName, value);
-            }
-            task.preData[key] = value;
-        }
+        handlerResult(result, taskStreamTask, io);
     }
 };
 
 var taskFeedbackStreamTask = {
     "sql": "select t.group_id,count(1) from T_TASK_FEEDBACK t " +
     "group by t.group_id", "eventName": "taskFeedbackStream", "defaultData": "0", "resultHandle": function (result) {
-        var task = taskFeedbackStreamTask;
-        for (var i = 0; i < result.rows.length; i++) {
-            var key = result.rows[i][0];
-            var value = result.rows[i][1];
-            if (task.preData) {
-                if (task.preData[key] && value != task.preData[key]) {
-                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
-                    io.sockets.to(key).emit(task.eventName, value);
-                } else if (!task.preData[key]) {
-                    console.log(key + "，对应数据从未产生：" + value);
-                    io.sockets.to(key).emit(task.eventName, value);
-                }
-            } else if (!task.preData) {
-                task.preData = {};
-                console.log(key + ",对应数据从未产生：" + value);
-                io.sockets.to(key).emit(task.eventName, value);
-            }
-            task.preData[key] = value;
-        }
+        handlerResult(result, taskFeedbackStreamTask, io);
     }
 };
 
 var groupMessageTask = {
     "sql": "select t.group_id,count(1) from T_GROUP_MESSAGE t " +
     "group by t.group_id", "eventName": "groupMessage", "defaultData": "0", "resultHandle": function (result) {
-        var task = groupMessageTask;
-        for (var i = 0; i < result.rows.length; i++) {
-            var key = result.rows[i][0];
-            var value = result.rows[i][1];
-            if (task.preData) {
-                if (task.preData[key] && value != task.preData[key]) {
-                    console.log(key + "，对应数据发生变化：" + value + "，之前的：" + task.preData[key]);
-                    io.sockets.to(key).emit(task.eventName, value);
-                } else if (!task.preData[key]) {
-                    console.log(key + "，对应数据从未产生：" + value);
-                    io.sockets.to(key).emit(task.eventName, value);
-                }
-            } else if (!task.preData) {
-                task.preData = {};
-                console.log(key + ",对应数据从未产生：" + value);
-                io.sockets.to(key).emit(task.eventName, value);
-            }
-            task.preData[key] = value;
-        }
+        handlerResult(result, groupMessageTask, io);
     }
 };
 
@@ -218,6 +171,7 @@ var groupStatusTask = {
 };
 
 var tasks = [receiveTask, feedbackTask, reminderTask, taskStreamTask, taskFeedbackStreamTask, groupMessageTask, groupStatusTask];
+
 // var tasks = [];
 
 function resutlHandle(sql, resutlHandle, rule) {
@@ -227,14 +181,14 @@ function resutlHandle(sql, resutlHandle, rule) {
         rule.second = times2;
     }
     schedule.scheduleJob(rule, function () {
-        console.log(new Date());
+        // console.log(new Date());
         execSql(sql, resutlHandle);
     });
 }
 
 function executeTasks(myIo) {
     io = myIo;
-    if (tasks.length==0){
+    if (tasks.length == 0) {
         return;
     }
     var asyncTasks = [];
