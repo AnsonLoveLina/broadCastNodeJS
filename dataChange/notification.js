@@ -82,7 +82,7 @@ var feedbackTask = {
     "where instr(t.receive_group_id, ug.group_id) > 0 " +
     "and t.delete_state = '0' " +
     "and t.reminder_state = 1 " +
-    "group by ug.user_id ", "eventName": "feedback", "defaultData": "0", "resultHandle": function (result) {
+    "group by ug.user_id ", "eventName": "reminder", "defaultData": "0", "resultHandle": function (result) {
         handlerResult(result, feedbackTask, io);
     }
 };
@@ -94,7 +94,7 @@ var reminderTask = {
     "and f.feedback_state = 0 " +
     "and t.delete_state = 0 " +
     "and f.delete_state = 0 " +
-    "group by t.create_id", "eventName": "reminder", "defaultData": "0", "resultHandle": function (result) {
+    "group by t.create_id", "eventName": "feedback", "defaultData": "0", "resultHandle": function (result) {
         handlerResult(result, reminderTask, io);
     }
 };

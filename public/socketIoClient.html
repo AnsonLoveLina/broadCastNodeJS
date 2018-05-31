@@ -11,57 +11,57 @@
 </body>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script>
-    var socket = io.connect('http://localhost:3000');
+    var socket = io.connect('http://192.168.1.125:3000');
     socket.on("connect",function () {
-        socket.emit("register", {"user": "6A2C1FBC70FE38EEE050007F010061E5"});
+        socket.emit("register", {"user": "6B99611542E9AB2DE050007F01003834"});
     });
 
     socket.on("receive", function (data) {
         console.log("receive"+data);
     });
 
-    socket.on("info", function (data) {
-        console.log("info"+data);
+    socket.on("feedback", function (data) {
+        console.log("feedback"+data);
     });
 
-    socket.on("groupStatus", function (data) {
-        console.log("groupStatus"+data);
+    socket.on("reminder", function (data) {
+        console.log("reminder"+data);
     });
-
-    socket.on("groupMessage", function (data) {
-        console.log("groupMessage"+data);
-    });
-
-    socket.on("taskFeedbackStream", function (data) {
-        console.log("taskFeedbackStream"+data);
-    });
-
-    socket.on("taskStream", function (data) {
-        console.log("taskStream"+data);
-    });
-
-    function unRegister(){
-        socket.emit("unRegister", {"user": "6A2C1FBC70FE38EEE050007F010061E5"});
-    }
-
-    function sendGroupRegister() {
-        socket.emit("register", {"group": "vvv"});
-    }
-
-    function sendUserDCN() {
-        var data = {};
-        data.roomName = "xxx";
-        data.eventName = "countMsg";
-        data.text = 99;
-        socket.emit("broadcastInfo", data);
-    }
-
-    function sendGroupDCN() {
-        var data = {};
-        data.roomName = "vvv";
-        data.eventName = "receive";
-        data.text = 100;
-        socket.emit("broadcastInfo", data);
-    }
+    //
+    // socket.on("groupMessage", function (data) {
+    //     console.log("groupMessage"+data);
+    // });
+    //
+    // socket.on("taskFeedbackStream", function (data) {
+    //     console.log("taskFeedbackStream"+data);
+    // });
+    //
+    // socket.on("taskStream", function (data) {
+    //     console.log("taskStream"+data);
+    // });
+    //
+    // function unRegister(){
+    //     socket.emit("unRegister", {"user": "6A2C1FBC70FE38EEE050007F010061E5"});
+    // }
+    //
+    // function sendGroupRegister() {
+    //     socket.emit("register", {"group": "vvv"});
+    // }
+    //
+    // function sendUserDCN() {
+    //     var data = {};
+    //     data.roomName = "xxx";
+    //     data.eventName = "countMsg";
+    //     data.text = 99;
+    //     socket.emit("broadcastInfo", data);
+    // }
+    //
+    // function sendGroupDCN() {
+    //     var data = {};
+    //     data.roomName = "vvv";
+    //     data.eventName = "receive";
+    //     data.text = 100;
+    //     socket.emit("broadcastInfo", data);
+    // }
 </script>
 </html>
