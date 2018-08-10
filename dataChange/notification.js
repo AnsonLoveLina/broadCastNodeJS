@@ -170,9 +170,9 @@ var groupStatusTask = {
     }
 };
 
-var tasks = [receiveTask, feedbackTask, reminderTask, taskStreamTask, taskFeedbackStreamTask, groupMessageTask, groupStatusTask];
+// var tasks = [receiveTask, feedbackTask, reminderTask, taskStreamTask, taskFeedbackStreamTask, groupMessageTask, groupStatusTask];
 
-// var tasks = [];
+var tasks = [];
 
 function resutlHandle(sql, resutlHandle, rule) {
     if (!rule) {
