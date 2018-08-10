@@ -74,8 +74,8 @@ function unRegister(data, io, socket) {
 }
 
 function parseJson(data, socket) {
-    console.log(data);
     if ("string" == typeof data) {
+        // console.log(data);
         try {
             data = JSON.parse(data);
         } catch (e) {
