@@ -72,6 +72,9 @@ function unRegister(data, io, socket) {
 function initConnection(io) {
     io.on('connection', function (socket) {
         socket.on("register", function (data) {
+            // if ("string" == typeof data) {
+            //     data = JSON.parse(data);
+            // }
             register(data, io, socket);
         });
         socket.on("unRegister", function (data) {

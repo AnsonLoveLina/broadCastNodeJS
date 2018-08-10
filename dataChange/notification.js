@@ -1,4 +1,4 @@
-var execSql = require("../utils/oracleUtil");
+// var execSql = require("../utils/oracleUtil");
 var schedule = require("node-schedule");
 var async = require("async");
 
@@ -9,7 +9,7 @@ function resutlHandle(sql, resutlHandle, rule) {
         rule.second = times2;
     }
     schedule.scheduleJob(rule, function () {
-        execSql(sql, resutlHandle);
+        // execSql(sql, resutlHandle);
     });
 }
 
