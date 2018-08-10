@@ -73,20 +73,32 @@ function unRegister(data, io, socket) {
     }
 }
 
+function parseJson(data, socket) {
+    console.log(data);
+    if ("string" == typeof data) {
+        try {
+            data = JSON.parse(data);
+        } catch (e) {
+            socket.emit("err", "json解析出错！" + data);
+        }
+    }
+    return data;
+}
+
 function initConnection(io) {
     io.on('connection', function (socket) {
         socket.on("register", function (data) {
-            // if ("string" == typeof data) {
-            //     data = JSON.parse(data);
-            // }
+            data = parseJson(data, socket);
             register(data, io, socket);
         });
         socket.on("unRegister", function (data) {
+            data = parseJson(data, socket);
             unRegister(data, io, socket);
         });
 
         //广播发送者
         socket.on("broadcastInfo", function (data) {
+            data = parseJson(data, socket);
             if (data.roomName && data.eventName && data.text) {
                 console.log("socket:" + socket.id);
                 console.log("namespace:" + data.namespace + ",roomName:" + data.roomName + ",eventName:" + data.eventName + ",text:" + data.text);
