@@ -1,5 +1,9 @@
 var getParams = require('./utils/serverUtil');
 
+var notification = require("./dataChange/notification");
+
+var tasks = notification.tasks;
+
 function firstData(key, socket) {
     tasks.forEach(function (task) {
         if (task.preData && task.preData[key]) {
