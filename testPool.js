@@ -78,13 +78,13 @@ var groupStatusTask = {
     }
 };
 
-tasks = [receiveTask, feedbackTask, reminderTask, taskStreamTask, taskFeedbackStreamTask, groupMessageTask, groupStatusTask];
-// tasks = [];
+// tasks = [receiveTask, feedbackTask, reminderTask, taskStreamTask, taskFeedbackStreamTask, groupMessageTask, groupStatusTask];
+tasks = [];
 
-var execSql = require("./utils/oracleUtil");
-
-execSql("select 1 from dual",function (result) {
-    console.log(result.rows);
-});
+// var execSql = require("./utils/oracleUtil");
+//
+// execSql("select 1 from dual",function (result) {
+//     console.log(result.rows);
+// });
 
 executeTasks();

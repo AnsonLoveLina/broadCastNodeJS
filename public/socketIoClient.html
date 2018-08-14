@@ -9,12 +9,17 @@
 <input type="button" value="sendUserBroadcastInfo" onclick="sendUserDCN()"/>
 <input type="button" value="sendGroupBroadcastInfo" onclick="sendGroupDCN()"/>
 </body>
-<script type="text/javascript" src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="http://211.157.146.7:8002/socket.io/socket.io.js"></script>
 <script>
-    var socket = io.connect('http://localhost:3000');
+    var socket = io.connect('http://211.157.146.7:8002');
     console.log(socket);
     socket.on("connect",function () {
-        socket.emit("register", "{'group':'110'}");
+        socket.emit("register", {'group':'110'});
+        socket.emit("register", {'user':'30716292'});
+
+        socket.on("CALLUSER", function (data) {
+            console.log("CALLUSER"+data);
+        });
     });
 
     socket.on("STUFF", function (data) {

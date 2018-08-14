@@ -1,21 +1,5 @@
 var getParams = require('./utils/serverUtil');
 
-var notification = require("./dataChange/notification");
-
-var tasks = notification.tasks;
-
-function firstData(key, socket) {
-    tasks.forEach(function (task) {
-        if (task.preData && task.preData[key]) {
-            socket.emit(task.eventName, task.preData[key]);
-            return;
-        }
-        if (task.preData && task.defaultData) {
-            socket.emit(task.eventName, task.defaultData);
-        }
-    });
-}
-
 function register(data, io, socket) {
     if (data.user) {
         var user = data.user;
@@ -32,7 +16,6 @@ function register(data, io, socket) {
         console.log("客户端：" + socket.id + ";" + user + "登录成功！");
         socket.emit("info", user + "登录成功！");
         socket.join(user);
-        firstData(user, socket);
 
         socket.on("disconnecting", function (reason) {
             console.log(user + "链接关闭，自动注销！");
@@ -52,7 +35,6 @@ function register(data, io, socket) {
         console.log("客户端：" + socket.id + "加入群组：" + group + "成功！");
         socket.emit("info", "加入群组：" + group + "成功！");
         socket.join(group);
-        firstData(group, socket);
 
         socket.on("disconnecting", function (reason) {
             console.log("链接关闭，自动退出群组：" + group + "！");
