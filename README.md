@@ -2,7 +2,7 @@
     server端主动发送广播给客户端
     
 ## client
-client分为：user和group两种。
+client分为：**user**和**group**两种类型。
 
 user是指一个user在只允许一个链接注册（一个链接对应js意味着一个io.connection）。
 
@@ -96,8 +96,19 @@ broadcastInfo用于第三方发送给对应user或者group数据，相应事件e
 
 ## client java
 
-之后补充！！！！
+gradle对应：
+    <pre><code>
+    api ('io.socket:socket.io-client:1.0.0') {
+        // excluding org.json which is provided by Android
+        exclude group: 'org.json', module: 'json'
+    }
+    api ('io.socket:engine.io-client:1.0.0') {
+        // excluding org.json which is provided by Android
+        exclude group: 'org.json', module: 'json'
+    }
+    </code></pre>
 
+socketIO Java:[This link](https://github.com/socketio/socket.io-client-java)
 
 npm:[This link](https://www.npmjs.com/package/broadcastnodejs)
 
