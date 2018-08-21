@@ -6,19 +6,19 @@ function register(data, io, socket) {
         //广播接收者
         var roomPeoples = io.sockets.adapter.rooms[user];
         if (roomPeoples != undefined) {
-            socket.emit("warn", "重复登录！之前已登录客户端将被注销！");
+            socket.emit("warn", "login repeated!unRegister the older one!");
             for (var loginedSocketId in roomPeoples.sockets) {
-                console.log("客户端：" + loginedSocketId + ";" + user + "已注销！");
+                console.log("client:" + loginedSocketId + ";" + user + " is unRegistered!");
                 socket.to(loginedSocketId).leave(user);
             }
         }
 
-        console.log("客户端：" + socket.id + ";" + user + "登录成功！");
-        socket.emit("info", user + "登录成功！");
+        console.log("client:" + socket.id + ";" + user + " login success!");
+        socket.emit("info", user + " login success");
         socket.join(user);
 
         socket.on("disconnecting", function (reason) {
-            console.log(user + "链接关闭，自动注销！");
+            console.log("connection is closed,auto unRegister the user:"+user+"!");
             socket.leave(user);
         });
     } else if (data.group) {
@@ -32,12 +32,12 @@ function register(data, io, socket) {
                 socket.emit("pairOffer", false);
             }
         }
-        console.log("客户端：" + socket.id + "加入群组：" + group + "成功！");
-        socket.emit("info", "加入群组：" + group + "成功！");
+        console.log("client:" + socket.id + " join the group:" + group + " success!");
+        socket.emit("info", "join the group:" + group + " success!");
         socket.join(group);
 
         socket.on("disconnecting", function (reason) {
-            console.log("链接关闭，自动退出群组：" + group + "！");
+            console.log("connection is closed,auto unRegister the group:" + group + "!");
             socket.leave(group);
         });
     }
@@ -46,11 +46,11 @@ function register(data, io, socket) {
 function unRegister(data, io, socket) {
     if (data.user) {
         var user = data.user;
-        console.log(user + "链接关闭，自动注销！");
+        console.log(user + "connection is closed,auto unRegister!");
         socket.leave(user);
     } else if (data.group) {
         var group = data.group;
-        console.log("链接关闭，自动退出群组：" + group + "！");
+        console.log("connection is closed,auto unRegister the group:" + group + "!");
         socket.leave(group);
     }
 }
@@ -61,7 +61,7 @@ function parseJson(data, socket) {
         try {
             data = JSON.parse(data);
         } catch (e) {
-            socket.emit("err", "json解析出错！" + data);
+            socket.emit("err", "json parse error!" + data);
         }
     }
     return data;
@@ -86,7 +86,7 @@ function initConnection(io) {
                 console.log("namespace:" + data.namespace + ",roomName:" + data.roomName + ",eventName:" + data.eventName + ",text:" + data.text);
                 var roomPeoples = io.sockets.adapter.rooms[data.roomName];
                 if (!roomPeoples) {
-                    socket.emit("info", "roomName：" + data.roomName + "不存在！");
+                    socket.emit("info", "roomName:" + data.roomName + "not exists!");
                     return;
                 }
                 if (data.namespace) {
@@ -95,7 +95,7 @@ function initConnection(io) {
                     socket.to(data.roomName).emit(data.eventName, data.text);
                 }
             } else {
-                socket.emit("err", "data格式错误！{roomName,eventName,text,?namespace}");
+                socket.emit("err", "data fromat error!{roomName,eventName,text,?namespace}");
             }
         });
 
