@@ -18,7 +18,7 @@ function register(data, io, socket) {
         socket.join(user);
 
         socket.on("disconnecting", function (reason) {
-            console.log("connection is closed,auto unRegister the user:"+user+"!");
+            console.log("client:" + socket.id + "connection is closed,auto unRegister the user:" + user + "!");
             socket.leave(user);
         });
     } else if (data.group) {
@@ -37,7 +37,7 @@ function register(data, io, socket) {
         socket.join(group);
 
         socket.on("disconnecting", function (reason) {
-            console.log("connection is closed,auto unRegister the group:" + group + "!");
+            console.log("client:" + socket.id + "connection is closed,auto unRegister the group:" + group + "!");
             socket.leave(group);
         });
     }
@@ -46,11 +46,11 @@ function register(data, io, socket) {
 function unRegister(data, io, socket) {
     if (data.user) {
         var user = data.user;
-        console.log(user + "connection is closed,auto unRegister!");
+        console.log("unRegister the user" + user + "!");
         socket.leave(user);
     } else if (data.group) {
         var group = data.group;
-        console.log("connection is closed,auto unRegister the group:" + group + "!");
+        console.log("unRegister the group:" + group + "!");
         socket.leave(group);
     }
 }
@@ -97,6 +97,10 @@ function initConnection(io) {
             } else {
                 socket.emit("err", "data fromat error!{roomName,eventName,text,?namespace}");
             }
+        });
+
+        socket.on("reconnect", function (data) {
+            console.log("reconnect:" + data);
         });
 
         socket.on("error", function (error) {
