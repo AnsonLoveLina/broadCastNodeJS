@@ -17,9 +17,10 @@ function register(data, io, socket) {
         socket.emit("info", user + " login success");
         socket.join(user);
 
-        socket.on("disconnecting", function (reason) {
+        socket.on("disconnect", function (reason) {
             console.log("client:" + socket.id + "connection is closed,auto unRegister the user:" + user + "!");
-            socket.leave(user);
+            socket.to(socket.id).leave(user);
+            // socket.leave(user);
         });
     } else if (data.group) {
         var group = data.group;
@@ -36,9 +37,10 @@ function register(data, io, socket) {
         socket.emit("info", "join the group:" + group + " success!");
         socket.join(group);
 
-        socket.on("disconnecting", function (reason) {
+        socket.on("disconnect", function (reason) {
             console.log("client:" + socket.id + "connection is closed,auto unRegister the group:" + group + "!");
-            socket.leave(group);
+            socket.to(socket.id).leave(group);
+            // socket.leave(group);
         });
     }
 }
